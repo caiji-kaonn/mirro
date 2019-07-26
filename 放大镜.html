@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .box {
+      width: 450px;
+      height: 450px;
+      border: 1px solid #aaa;
+      position: relative;
+      top: 100px;
+      left: 100px;
+    }
+
+    .small {
+      width: 450px;
+      height: 450px;
+      position: absolute;
+    }
+
+    .mask {
+      position: absolute;
+      background-color: rgba(255, 255, 0, .3);
+      width: 225px;
+      height: 225px;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+
+    .big {
+      width: 450px;
+      height: 450px;
+      border: 1px solid #aaa;
+      position: absolute;
+      left: 500px;
+      top: 0;
+      overflow: hidden;
+      display: none;
+    }
+
+    .big>img {
+      width: 900px;
+      height: 900px;
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <div class="small">
+      <img src="../images/s.jpg" alt="">
+      <div class="mask"></div>
+    </div>
+    <div class="big">
+      <img src="../images/big.jpg" alt="">
+    </div>
+  </div>
+</body>
+<script>
+  // 效果：遮盖盒子跟随着鼠标移动；并且遮盖盒子不会超出盒子的范围
+  window.onload = function () {
+
+    // 1.鼠标移进盒子去，遮盖出现；
+    let zhegai = document.querySelector('.mask');
+    let small = document.querySelector('.small');
+    let big = document.querySelector('.big');
+    let bigImg = document.querySelector('.big>img')
+    let box = document.querySelector('.box');
+ 
+
+    small.onmouseover = function () {
+      zhegai.style.display = 'block';
+      big.style.display = 'block';
+    }
+    // 移出去，不显示
+    small.onmouseout = function () {
+      zhegai.style.display = 'none';
+      big.style.display = 'none';
+    }
+
+    // 2.遮盖盒子跟随着鼠标移动；
+    small.onmousemove = function (e) {
+      // 目的是为了设置 [遮盖的位置 =  鼠标位置-small距离页面左上角的位置-遮盖宽高的一半 ] = 遮盖位置
+      //  1.鼠标的位置
+      let X = e.pageX;
+      let Y = e.pageY;
+      // 2.small的位置-由于small的位置为0，所以此时应该取的是box的
+      let offLeft = box.offsetLeft;
+      let offTop = box.offsetTop;
+      // 3.遮盖的宽高的一半
+      let offWidth = zhegai.offsetWidth / 2;
+      let offHeight = zhegai.offsetHeight / 2;
+      // 4.以上条件可以计算遮盖的位置
+      let zhegaiX = X - offLeft - offWidth;
+      let zhegaiY = Y - offTop - offHeight;
+      //  5.设置最小值和最大值
+      zhegaiX = zhegaiX < 0 ? 0 : zhegaiX;
+      zhegaiY = zhegaiY < 0 ? 0 : zhegaiY;
+      //  最大值
+      let dak = small.clientWidth - zhegai.offsetWidth;
+      let dah = small.clientHeight - zhegai.offsetHeight;
+      zhegaiX = zhegaiX > dak ? dak : zhegaiX;
+      zhegaiY = zhegaiY > dah ? dah : zhegaiY;
+      // 遮罩的位置
+      zhegai.style.left = zhegaiX + 'px';
+      zhegai.style.top = zhegaiY + 'px';
+
+      //  6.遮盖盒子镜头放大效果
+      // 公式  [大图的当前位置 = 遮罩当前位置 * 大图的最大位置 / 遮罩最大位置]= 给大图
+      // 首先求出：大图的最大位置 =  大图的宽高   - 装大图盒子的宽高
+      let bigimaW = bigImg.offsetWidth - big.offsetWidth;
+      let bigimaH = bigImg.offsetHeight - big.offsetHeight;
+      // 大图的当前位置
+      let bigW= zhegaiX*bigimaW/dak;
+      let bigH= zhegaiY*bigimaH/dah;
+    //  最后
+    bigImg.style.top= -bigH+'px';
+    bigImg.style.left=-bigW+'px';
+
+    }
+  }
+</script>
+
+
+</html>

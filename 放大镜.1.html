@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .box {
+      width: 450px;
+      height: 450px;
+      border: 1px solid #aaa;
+      position: relative;
+      top: 100px;
+      left: 100px;
+    }
+
+    .small {
+      width: 450px;
+      height: 450px;
+      position: absolute;
+    }
+
+    .mask {
+      position: absolute;
+      background-color: rgba(255, 255, 0, .3);
+      width: 225px;
+      height: 225px;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+
+    .big {
+      width: 450px;
+      height: 450px;
+      border: 1px solid #aaa;
+      position: absolute;
+      left: 500px;
+      top: 0;
+      overflow: hidden;
+      display: none;
+    }
+
+    .big>img {
+      width: 900px;
+      height: 900px;
+      position: absolute;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <div class="small">
+      <img src="../images/s.jpg" alt="">
+      <div class="mask"></div>
+    </div>
+    <div class="big">
+      <img src="../images/big.jpg" alt="">
+    </div>
+  </div>
+</body>
+<script>
+// 效果：1.鼠标移入时，显示遮盖和大图，移出时没有；2.让遮盖=实际上很多个图的宽度计算-完成遮盖在一定范围内跟着鼠标移动
+
+window.onload=function(){
+// 获取元素
+let gaigai = document.querySelector('.mask');
+let smallhe = document.querySelector('.small');
+let bighe= document.querySelector('.big');
+let bigImg = document.querySelector('.big>img');
+let box = document.querySelector('.box');
+
+  // 1.鼠标移入时，显示遮盖和大图，移出时没有；
+smallhe.onmouseover=function(){
+  gaigai.style.display='block';
+  bighe.style.display='block';
+}
+// 鼠标移除，遮盖和图消失
+smallhe.onmouseout=function(){
+  gaigai.style.display='none';
+  bighe.style.display='none';
+}
+
+// 2.让遮盖=实际上很多个图的宽度计算-完成遮盖在一定范围内跟着鼠标移动
+// 遮盖= 鼠标位置  - smallhe盒子距离页面左上角的位置 - 遮盖盒子实际宽高的一半
+smallhe.onmousemove= function(e){
+  //  求鼠标位置
+let x = e.pageX;
+let y = e.pageY;
+// 求smallhe盒子距离页面左上角的位置，实际上就是求smallhe盒子的父元素盒子的实际宽高,
+// 由于父盒子是被定位的，所以此时求的是 TOP 和LEFT;
+let boxL= box.clientLeft;
+let boxT= box.clientTop;
+// 求遮盖盒子实际宽高的一半
+let gaigaiX= gaigai.clientWidth /2;
+let gaigaiY = gaigai.clientHeight /2;
+let gaigaiL= x- boxL-gaigaiX;
+let gaigaiT= y-boxT-gaigaiY;
+
+// 设置大小值，限定遮盖范围
+// 最小值是0，最大值是  smallhe宽高 - 遮盖的宽高
+gaigaiL= gaigaiL<0?0:gaigaiL;
+gaigaiT= gaigaiT<0?0:gaigaiT;
+// 最大值
+let daX= smallhe.clientWidth - gaigai.offsetWidth;
+let daY = smallhe.clientHeight - gaigai.offsetHeight;
+gaigaiL= gaigaiL>daX?daX:gaigaiL;
+gaigaiT= gaigaiT>daY?daY:gaigaiT;
+// 遮盖最终位置
+gaigai.style.left= gaigaiL+ 'px';
+gaigai.style.top=gaigaiT+'px';
+
+// 3.求等比例大图
+// 公式：[大图的当前位置 = 遮盖当前位置 * 大图的最大位置 / 遮盖最大位置] = 设置给大图
+
+// 求出： 大图的最大位置 = 大图的宽高 - 装大图盒子的宽高
+let bigImgeW =  bigImg.offsetWidth - bighe.clientWidth;
+let bigImgeH =  bigImg.offsetHeight - bighe.clientHeight;
+
+let bigImgeL = gaigaiL * bigImgeW / daX;
+let bigImgeT = gaigaiT * bigImgeH / daY;
+
+bigImg.style.left = -bigImgeL+'px';
+bigImg.style.top = -bigImgeT+'px';
+
+}
+}
+
+
+
+
+</script>
+
+
+
+</html>
